@@ -1,0 +1,643 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="SSMT3.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SSMT3"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    xmlns:mmt_core_gridviewitems="using:SSMT3"
+    xmlns:community="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:s="using:CommunityToolkit.WinUI"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
+    CacheMode="BitmapCache"
+    Background="Transparent"
+    >
+    
+    <!--WinUI3所有的东西都在CommunityToolkit里，
+    然后也没有一个可靠的文档来告诉萌新在哪里可以获取，
+    只有几个很久都不更新的Gallary程序勉强能参考
+    
+    目前入门阶段最优解是直接学其他人项目里的用法，以及硬啃Community包的源码(首先我懒得啃)。
+    -->
+
+    <Grid >
+        <!-- 定义行 -->
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <!-- 定义列 -->
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.7*"/>
+            <ColumnDefinition Width="0.3*"/>
+        </Grid.ColumnDefinitions>
+        
+        <!--游戏图标列表-->
+        <GridView
+            Margin="55,35"
+            VerticalAlignment="Bottom"
+            Grid.Column="0"
+            Grid.Row="0"
+            x:Name="GameIconGridView"
+            ScrollViewer.VerticalScrollBarVisibility="Auto"
+            SelectionChanged="GameIconGridView_SelectionChanged">
+
+            <GridView.ItemTemplate >
+                <DataTemplate x:Name="GameIconItemGridTemplate" x:DataType="local:GameIconItem" >
+                    <GridViewItem >
+                        <Grid x:Name="ModShowGrid" Width="80" Height="80" AllowDrop="False" >
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions> 
+
+
+                            <Image HorizontalAlignment="Left"   Grid.Row="0" Source="{x:Bind GameIconImageSource}" Stretch="UniformToFill" Width="80" Height="80"/>
+
+                            <StackPanel Grid.Row="0" Orientation="Vertical" VerticalAlignment="Bottom" Height="20" >
+                                <StackPanel.Background>
+                                    <AcrylicBrush
+                                        TintColor="{ThemeResource SystemChromeLowColor}"
+                                        TintOpacity="0.7"
+                                        FallbackColor="{ThemeResource SystemChromeLowColor}"/>
+                                </StackPanel.Background>
+                                <TextBlock 
+                                    HorizontalAlignment="Center" Margin="1" VerticalAlignment="Bottom" Text="{x:Bind GameName}" FontSize="11" FontWeight="Bold"/>
+                            </StackPanel>
+                            <!-- 流光边框 -->
+                            <Rectangle 
+                                Grid.Row="0" 
+                                Grid.RowSpan="2" 
+                                x:Name="FlowBorder" 
+                                RadiusX="8" 
+                                RadiusY="8" 
+                                StrokeThickness="2" 
+                                Margin="-1">
+                                <!-- 扩大边界以覆盖内容 -->
+                                <Rectangle.Stroke>
+                                    <LinearGradientBrush x:Name="FlowBrush" StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="Transparent" Offset="0"/>
+                                        <GradientStop Color="Pink" Offset="0.45"/>
+                                        <GradientStop Color="DodgerBlue" Offset="0.75"/>
+                                        <GradientStop Color="Transparent" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Rectangle.Stroke>
+                            </Rectangle>
+                        </Grid>
+                    </GridViewItem>
+
+                </DataTemplate>
+            </GridView.ItemTemplate>
+
+            <GridView.ItemContainerStyle>
+                <Style TargetType="GridViewItem" BasedOn="{StaticResource DefaultGridViewItemStyle}">
+                    <Setter Property="Margin" Value="5,5, 5, 5"/>
+                </Style>
+            </GridView.ItemContainerStyle>
+            <!-- An extra property also needs to be added to the GridView's ItemsWrapGrid.
+The following sets the maximum # of items to show before wrapping.-->
+            <GridView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <ItemsWrapGrid x:Name="MaxItemsWrapGrid"
+                       MaximumRowsOrColumns="5"
+                       Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </GridView.ItemsPanel>
+        </GridView>
+
+        <InfoBar
+            x:Name="InforBar_NorificationQueue"
+            Grid.ColumnSpan="2"
+            VerticalAlignment="Top"
+            HorizontalAlignment="Center"
+            Margin="50"
+            >
+            <interactivity:Interaction.Behaviors>
+                <behaviors:StackedNotificationsBehavior x:Name="NotificationQueue" />
+            </interactivity:Interaction.Behaviors>
+        </InfoBar>
+
+
+        <!--当前游戏配置-->
+        <Border
+            Visibility="Collapsed"
+            CornerRadius="10"
+            x:Name="Border_GameConfig"
+            Grid.Column="0" 
+            Grid.Row="1"  
+            Grid.RowSpan="2"
+            Margin="40" >
+            
+            <Border.Background>
+                <AcrylicBrush
+                    Opacity="0.96"
+                    TintColor="{ThemeResource SystemChromeLowColor}"
+                    TintOpacity="0.7"
+                    FallbackColor="{ThemeResource SystemChromeLowColor}"/>
+            </Border.Background>
+            
+            <!-- 支持滑条，不然显示不完全 -->
+            <ScrollViewer 
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Stretch"
+                Margin="10"
+                VerticalScrollBarVisibility="Auto">
+                
+                <StackPanel   
+                    Orientation="Vertical" 
+                    HorizontalAlignment="Stretch">
+
+                    <Expander
+                        HorizontalContentAlignment="Stretch"
+                        HorizontalAlignment="Stretch"
+                        IsExpanded="True">
+                        <Expander.Header>
+                            <StackPanel Margin="10">
+                                <TextBlock 
+                                    x:Name="TextBlock_BasicSettings"
+                                    FontSize="14" 
+                                    FontWeight="Bold"/>
+                            </StackPanel>
+                        </Expander.Header>
+
+                        <StackPanel Orientation="Vertical">
+
+                            <Border>
+                                <StackPanel Orientation="Vertical">
+                                    <ComboBox
+                                        HorizontalAlignment="Stretch"
+                                        Margin="5"
+                                        x:Name="ComboBox_GameName"
+                                        SelectionChanged="ComboBox_GameName_SelectionChanged"
+                                        IsEditable="True">
+                                    </ComboBox>
+
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button 
+                                            Margin="5"
+                                            x:Name="Button_CreateNewGame"
+                                            Click="Button_CreateNewGame_Click"
+                                            >
+                                        </Button>
+
+                                        <Button 
+                                            Margin="5"
+                                            x:Name="Button_DeleteSelectedGame"
+                                            Click="Button_DeleteSelectedGame_Click"
+                                            >
+                                        </Button>
+
+                                        <CheckBox 
+                                            Margin="5"
+                                            x:Name="CheckBox_PureGameMode" 
+                                            Checked="CheckBox_PureGameMode_Checked" 
+                                            Unchecked="CheckBox_PureGameMode_Checked" />
+                                    </StackPanel>
+                                </StackPanel>
+
+
+                            </Border>
+
+                            <Border>
+                                <ComboBox 
+                                    Margin="5"
+                                    HorizontalAlignment="Stretch"
+                                    x:Name="ComboBox_GamePreset" 
+                                    SelectionChanged="ComboBox_GamePreset_SelectionChanged">
+
+                                </ComboBox>
+                            </Border>
+
+                            <Border>
+                                
+                                <StackPanel Orientation="Horizontal">
+                                   
+                                    
+                                    <Button
+                                        Click="Button_SelectBackgroundFile_Click"
+                                        x:Name="Button_SelectBackgroundFile"
+                                        Margin="5"/>
+                                    
+                                    <Button
+                                        Click="Button_CheckBGUpdate_Click"
+                                        Margin="5"
+                                        x:Name="Button_AutoUpdateBackground"
+                                        />
+
+                                    <ProgressRing 
+                                        Visibility="Collapsed"
+                                        x:Name="ProgressRing_AutoUpdateBackground"
+                                        IsActive="True"></ProgressRing>
+                                    
+                                    <Button
+                                        Click="Button_ChooseGameIcon_Click"
+                                        Margin="5"
+                                        x:Name="Button_ChooseGameIcon"
+                                        />
+                                    
+                                    <CheckBox
+                                        Checked="CheckBox_ShowIcon_Checked"
+                                        Unchecked="CheckBox_ShowIcon_Checked"
+                                        Margin="5"
+                                        x:Name="CheckBox_ShowIcon"
+                                        />
+                                    
+                                </StackPanel>
+
+                            </Border>
+
+                            <Border x:Name="Border_GINoError">
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Button
+                                        Click="Button_CleanGICache_Click"
+                                        x:Name="Button_CleanGICache"
+                                        Margin="5"/>
+                                    <Button
+                                        Click="Button_RunIgnoreGIError40_Click"
+                                        x:Name="Button_RunIgnoreGIError40"
+                                        Margin="5"/>
+
+                                    <CheckBox
+                                        x:Name="CheckBox_AutoRunIgnoreErrorGIPlugin"
+                                        Margin="5"
+                                        Checked="CheckBox_AutoRunIgnoreErrorGIPlugin_Checked"
+                                        Unchecked="CheckBox_AutoRunIgnoreErrorGIPlugin_Checked" />
+                                </StackPanel>
+                                
+                            </Border>
+                      
+                          
+
+                        </StackPanel>
+                    </Expander>
+                    
+                    
+                    <!--游戏自定义配置，只有在游戏预设为DIY的时候才显示-->
+                    <Expander
+                        x:Name="Expander_DIYSettings"
+                        HorizontalContentAlignment="Stretch"
+                        HorizontalAlignment="Stretch"
+                        IsExpanded="True">
+                        <Expander.Header>
+                            <StackPanel Margin="10">
+                                <TextBlock 
+                                    x:Name="TextBlock_DIYSettings"
+                                    FontSize="14" 
+                                    FontWeight="Bold"/>
+                            </StackPanel>
+                        </Expander.Header>
+                        
+                        <StackPanel Orientation="Vertical">
+                            <controls:SettingsCard x:Name="SettingsCard_LogicName">
+                                <!-- 这里换成你查到的编码 -->
+                                <controls:SettingsCard.HeaderIcon>
+                                    <FontIcon Glyph="&#xEb44;" FontFamily="Segoe Fluent Icons"/>
+                                </controls:SettingsCard.HeaderIcon>
+
+                                <ComboBox 
+                           HorizontalAlignment="Stretch"
+                           Margin="5"
+                           x:Name="ComboBox_LogicName"
+                           SelectionChanged="ComboBox_LogicName_SelectionChanged">
+                                </ComboBox>
+
+
+                            </controls:SettingsCard>
+
+                            <controls:SettingsCard  x:Name="SettingsCard_GameTypeFolder">
+                                <!-- 这里换成你查到的编码 -->
+                                <controls:SettingsCard.HeaderIcon>
+                                    <FontIcon Glyph="&#xf003;" FontFamily="Segoe Fluent Icons"/>
+                                </controls:SettingsCard.HeaderIcon>
+
+                                <ComboBox
+                                    SelectionChanged="ComboBox_GameTypeFolder_SelectionChanged"
+                                    HorizontalAlignment="Stretch"
+                                    Margin="5"
+                                    x:Name="ComboBox_GameTypeFolder"
+                                    >
+                                </ComboBox>
+
+                            </controls:SettingsCard>
+
+                            <controls:SettingsCard  x:Name="SettingsCard_MigotoPackage">
+                                <!-- 这里换成你查到的编码 -->
+                                <controls:SettingsCard.HeaderIcon>
+                                    <FontIcon Glyph="&#xe719;" FontFamily="Segoe Fluent Icons"/>
+                                </controls:SettingsCard.HeaderIcon>
+
+                                <ComboBox 
+                                    Margin="5"
+                                    SelectionChanged="ComboBox_MigotoPackage_SelectionChanged"
+                                    x:Name="ComboBox_MigotoPackage">
+                                </ComboBox>
+
+
+
+                            </controls:SettingsCard>
+
+
+                        </StackPanel>
+                    </Expander>
+
+
+
+                    <!--3Dmigoto设置-->
+                    <Expander
+                        HorizontalContentAlignment="Stretch"
+                        HorizontalAlignment="Stretch"
+                        IsExpanded="True">
+                        <Expander.Header>
+                            <StackPanel Margin="10">
+                                <TextBlock 
+                                    x:Name="TextBlock_3DmigotoFolderPath"
+                                    FontSize="14" 
+                                    FontWeight="Bold"/>
+                            </StackPanel>
+                        </Expander.Header>
+
+                        <StackPanel Orientation="Vertical">
+                            <TextBox 
+                                HorizontalAlignment="Stretch"
+                                Margin="5"
+                                LostFocus="TextBox_3DmigotoPath_LostFocus"
+                                x:Name="TextBox_3DmigotoPath"  />
+
+                            <ItemsControl>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <ItemsWrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+
+                                <Button 
+                                    Margin="5"
+                                    VerticalAlignment="Center" 
+                                    Click="Button_Choose3DmigotoPath_Click"
+                                    x:Name="Button_Choose3DmigotoPath"/>
+
+                                <Button
+                                    Margin="5"
+                                    x:Name="Button_Open3DmigotoFolder"
+                                    Click="Button_Open3DmigotoFolder_Click"/>
+
+                                <HyperlinkButton
+                                    Margin="5"
+                                    x:Name="HyperlinkButton_MigotoPackageVersion"
+                                    Content="3Dmigoto Package Version: "
+                                    />
+                            </ItemsControl>
+
+
+                            <StackPanel Orientation="Horizontal">
+                                
+                                
+                                <Button 
+                                    Margin="5"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    x:Name="Button_CheckMigotoPackageUpdate"
+                                    Click="Button_CheckMigotoPackageUpdate_Click"
+                                    >
+                                </Button>
+
+                                <ProgressRing 
+                                    Margin="5"
+                                    x:Name="ProgressRing_PackageUpdateRing" 
+                                    IsActive="False">
+                                </ProgressRing>
+
+                            </StackPanel>
+
+                            <TextBox
+                                Grid.Column="0"
+                                Margin="5"
+                                HorizontalAlignment="Stretch"
+                                LostFocus="TextBox_TargetPath_LostFocus"
+                                x:Name="TextBox_TargetPath"/>
+
+                            <StackPanel Orientation="Horizontal">
+                                <Button
+                                    Grid.Column="1"
+                                    Margin="4"
+                                    Click="Button_ChooseProcessFile_Click"
+                                    x:Name="Button_ChooseProcessFile"
+                                    VerticalAlignment="Bottom">
+                                </Button>
+
+                                <Button
+                                    Grid.Column="2"
+                                    Margin="4"
+                                    x:Name="Button_OpenProcessFileFolder"
+                                    Click="Button_OpenProcessFileFolder_Click"
+                                    VerticalAlignment="Bottom">
+                                </Button>
+                            </StackPanel>
+                            
+                            <TextBox 
+                                    Grid.Column="0"
+                                    Margin="5"
+                                    HorizontalAlignment="Stretch"
+                                    LostFocus="TextBox_LaunchPath_LostFocus"
+                                    x:Name="TextBox_LaunchPath"/>
+                            
+                            <StackPanel Orientation="Horizontal">
+                                <Button 
+                                    Margin="5"
+                                    Click="Button_ChooseLaunchFile_Click"
+                                    x:Name="Button_ChooseLaunchFile"
+                                    >
+                                </Button>
+
+                                <Button
+                                    Margin="5"
+                                    x:Name="Button_OpenLaunchFileFolder"
+                                    Click="Button_OpenLaunchFileFolder_Click"
+                                    >
+                                </Button>
+                            </StackPanel>
+                        
+
+
+
+
+                            <TextBox 
+                                Margin="5"
+                                LostFocus="TextBox_LaunchArgsPath_LostFocus"
+                                MinWidth="200"
+                                x:Name="TextBox_LaunchArgsPath"/>
+
+
+                            <Border>
+                                <StackPanel Orientation="Horizontal">
+                                    <CheckBox 
+                                        Margin="5" 
+                                        x:Name="CheckBox_ShowWarning" 
+                                        Checked="CheckBox_ShowWarning_Checked" 
+                                        Unchecked="CheckBox_ShowWarning_Checked" />
+
+                                    <CheckBox 
+                                        Margin="5"
+                                        x:Name="CheckBox_AutoSetAnalyseOptions"
+                                        Checked="CheckBox_AutoSetAnalyseOptions_Checked"
+                                        Unchecked="CheckBox_AutoSetAnalyseOptions_Checked" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <CheckBox 
+                                        x:Name="CheckBox_RunWithShell"
+                                        Margin="5"
+                                        Checked="CheckBox_RunWithShell_Checked"
+                                        Unchecked="CheckBox_RunWithShell_Checked" />
+
+                                    <CheckBox
+                                        x:Name="CheckBox_DllPreProcess"
+                                        Margin="5"
+                                        Checked="CheckBox_DllPreProcess_Checked"
+                                        Unchecked="CheckBox_DllPreProcess_Checked" />
+                                   
+                                </StackPanel>
+                            </Border>
+
+
+
+                            <NumberBox 
+                                Margin="5"
+                                SmallChange="10"
+                                LargeChange="100"
+                                x:Name="NumberBox_DllInitializationDelay"
+                                LostFocus="NumberBox_DllInitializationDelay_LostFocus"/>
+
+
+                            <NumberBox
+                                Margin="5"
+                                x:Name="NumberBox_Delay"
+                                SmallChange="1"
+                                LargeChange="1"
+                                Minimum="-1"
+                                ValueChanged="NumberBox_Delay_ValueChanged"
+                                ></NumberBox>
+
+                            <TextBox
+                                Margin="5"
+                                x:Name="TextBox_ExtraInjectDll"
+                                HorizontalAlignment="Stretch"
+                                LostFocus="TextBox_ExtraInjectDll_LostFocus"
+                                ></TextBox>
+
+                            <Button
+                                x:Name="Button_ChooseExtraInjectDll"
+                                Margin="5"
+                                Click="Button_ChooseExtraInjectDll_Click"
+                                ></Button>
+
+                        </StackPanel>
+
+                    </Expander>
+
+                    <Expander
+                        x:Name="Expander_WWMIConfig"
+                        HorizontalContentAlignment="Stretch"
+                        HorizontalAlignment="Stretch"
+                        IsExpanded="True">
+                        <Expander.Header>
+                            <StackPanel Margin="10">
+                                <TextBlock 
+                                    Text="WWMI配置项"
+                                    FontSize="14" 
+                                    FontWeight="Bold"/>
+                            </StackPanel>
+                        </Expander.Header>
+                        <StackPanel Orientation="Vertical">
+                            <CheckBox
+                                IsEnabled="False"
+                                Margin="5"
+                                x:Name="CheckBox_OverwriteWWMIEngineSetting"
+                                Checked="CheckBox_OverwriteWWMIEngineSetting_Checked"
+                                Unchecked="CheckBox_OverwriteWWMIEngineSetting_Checked"
+                                >
+                            </CheckBox>
+                            
+                            
+                        </StackPanel>
+                    </Expander>
+
+
+
+
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+
+        <!--一键启动按钮和设置按钮-->
+        <StackPanel
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Grid.Row="0"
+            Grid.RowSpan="2"
+            Margin="0,0,25,25" 
+            VerticalAlignment="Bottom"
+            HorizontalAlignment="Right"
+            Orientation="Horizontal">
+
+            <!--一键启动按钮-->
+            <StackPanel 
+                Margin="15"
+                Orientation="Vertical">
+
+                <StackPanel Orientation="Horizontal">
+                    <Border
+                        CornerRadius="25"
+                        Width="Auto"
+                        Margin="5"
+                        BorderThickness="2"
+                        BorderBrush="White"
+                        >
+                        <Button 
+                            BorderThickness="0"
+                            x:Name="Button_RunLaunchPath" 
+                            Width="200"
+                            MinHeight="50"
+                            FontSize="21"
+                            FontWeight="Bold"
+                            Click="Button_RunLaunchPath_Click"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"/>
+                    </Border>
+
+                    <Button 
+                        VerticalAlignment="Center"
+                            Margin="5"
+                            x:Name="Button_ShowSetting"
+                            Click="Button_ShowSetting_Click"
+                            CornerRadius="25"
+                            Width="50" 
+                            Height="50">
+                        <SymbolIcon Symbol="Setting"/>
+                    </Button>
+
+                </StackPanel>
+                
+
+            </StackPanel>
+
+
+
+        </StackPanel>
+        
+       
+    </Grid>
+        
+</Page>

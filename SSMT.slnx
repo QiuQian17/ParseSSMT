@@ -1,0 +1,22 @@
+<Solution>
+  <Configurations>
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/解决方案项/">
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="3Dmigoto-Injector-V2/3Dmigoto-Injector-V2.vcxproj" Id="fd85ea29-988f-4a1c-b1bf-fabea5444a4c">
+    <Platform Solution="*|ARM64" Project="x64" />
+    <Build Solution="*|x64" Project="false" />
+  </Project>
+  <Project Path="MessageBoxTestDll/MessageBoxTestDll.vcxproj" Id="56e8a081-b5dd-4cec-9ae8-f7be5afea97f">
+    <Platform Solution="*|ARM64" Project="x64" />
+  </Project>
+  <Project Path="SSMT3/SSMT3/SSMT3.csproj">
+    <Platform Solution="*|ARM64" Project="ARM64" />
+    <Platform Solution="*|x64" Project="x64" />
+    <Platform Solution="*|x86" Project="x86" />
+  </Project>
+</Solution>

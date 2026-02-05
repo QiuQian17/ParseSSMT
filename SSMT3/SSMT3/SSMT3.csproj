@@ -1,0 +1,89 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>SSMT3</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Platforms>x86;x64;ARM64</Platforms>
+    <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+    <UseWinUI>true</UseWinUI>
+    <WinUISDKReferences>false</WinUISDKReferences>
+    <Nullable>enable</Nullable>
+	<WindowsPackageType>None</WindowsPackageType>
+	<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Manifest Include="$(ApplicationManifest)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.250402" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.250402" />
+    <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.2" />
+    <PackageReference Include="Confuser.MSBuild" Version="1.6.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="DirectXTexNet" Version="1.0.7" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3650.58" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7175" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251106002" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="SharpCompress" Version="0.42.1" />
+    <PackageReference Include="Velopack" Version="0.0.1298" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pages\DocumentPage\" />
+  </ItemGroup>
+
+  <!-- Publish Properties -->
+  <PropertyGroup>
+    <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
+    <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
+    <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
+    <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">False</PublishTrimmed>
+	<!--<Optimize>true</Optimize>-->
+	<!-- 启用编译器优化 -->
+	<DebugType>portable</DebugType>
+	<!-- 不生成 PDB 调试文件，或者设为 portable -->
+  </PropertyGroup>
+
+	<!-- 放在任意 <ItemGroup> 内，或新建一个 -->
+	<ItemGroup>
+		<!-- 递归包含 Assets 下所有文件，并在生成时复制到输出目录 -->
+		<Content Include="Resources\**" CopyToOutputDirectory="Always" />
+		<Content Include="Resources\GameType\**" CopyToOutputDirectory="Always" />
+		<Content Include="Resources\Plugins\**" CopyToOutputDirectory="Always" />
+		<Content Include="Resources\Games\**" CopyToOutputDirectory="Always" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Remove="Pages\AutoReversePage\AutoReversePage.xaml" />
+	  <None Remove="Pages\ManuallyReversePage\ManuallyReversePage.xaml" />
+	  <None Remove="ProtectPage.xaml" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="Pages\ManuallyReversePage\ManuallyReversePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="Pages\AutoReversePage\AutoReversePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="ProtectPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+
+
+	<!--禁用空值检查，没必要那么严格，只是一个小工具，一切从简-->
+	<PropertyGroup>
+		<Nullable>disable</Nullable>
+		<ApplicationIcon>Resources\XiaoMai.ico</ApplicationIcon>
+	</PropertyGroup>
+</Project>
